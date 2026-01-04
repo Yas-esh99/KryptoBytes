@@ -25,14 +25,8 @@ import ecdsa
 import json
 
 
-def wallet():
-    response = None
-    while response not in ["1", "2", "3", "4"]:
-        response = input("""What do you want to do?
-        1. Generate new wallet
-        2. Send coins to another wallet
-        3. Check transactions
-        4. Quit\n""")
+def wallet(response):
+    
     if response == "1":
         # Generate new wallet
         print("""=========================================\n
@@ -54,7 +48,7 @@ IMPORTANT: save this credentials or you won't be able to recover your wallet\n
             return wallet()  # return to main menu
     elif response == "3":  # Will always occur when response == 3.
         check_transactions()
-        return wallet()  # return to main menu
+        # return to main menu
     else:
         quit()
 
@@ -115,10 +109,7 @@ def generate_ECDSA_keys():
     # we are going to encode the public key to make it shorter
     public_key = base64.b64encode(bytes.fromhex(public_key))
 
-    filename = input("Write the name of your new address: ") + ".txt"
-    with open(filename, "w") as f:
-        f.write(F"Private key: {private_key}\nWallet address / Public key: {public_key.decode()}")
-    print(F"Your new address and private key are now in the file {filename}")
+    return [private_key,public_key.decode()]
 
 
 def sign_ECDSA_msg(private_key):
@@ -137,12 +128,6 @@ def sign_ECDSA_msg(private_key):
     return signature, message
 
 
-if __name__ == '__main__':
-    print("""       =========================================\n
-        SIMPLE COIN v1.0.0 - BLOCKCHAIN SYSTEM\n
-       =========================================\n\n
-        You can find more help at: https://github.com/cosme12/SimpleCoin\n
-        Make sure you are using the latest version or you may end in
-        a parallel chain.\n\n\n""")
-    wallet()
-    input("Press ENTER to exit...")
+
+
+wallet("3")
