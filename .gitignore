@@ -1,3 +1,7 @@
 *.pyc
 Backend/firebase/krytpbytes-firebase-adminsdk-fbsvc-b97802092a.json
 krytpbytes-firebase-adminsdk-fbsvc-b97802092a.json
+*.json
+.env
+__pycache__/
+venv/
