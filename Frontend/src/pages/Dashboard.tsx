@@ -29,11 +29,11 @@ const quickActions = [
 
 export default function Dashboard() {
   const { user } = useAuth();
-  const { getRecentTransactions } = useTransactions();
+  const { transactions } = useTransactions();
 
   if (!user) return null;
 
-  const recentTransactions = getRecentTransactions(user.id, 5);
+  const recentTransactions = transactions.slice(0, 5);
 
   return (
     <Layout>

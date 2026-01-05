@@ -52,3 +52,7 @@ export const apiLogin = (email, password) => {
   export const getTransactions = (page = 1, limit = 10) => {
     return apiRequest(`/transactions?page=${page}&limit=${limit}`);
   };
+
+  export const getUsers = () => {
+    return apiRequest('/users');
+  };

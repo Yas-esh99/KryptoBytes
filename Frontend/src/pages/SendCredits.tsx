@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Search, Send as SendIcon, ArrowRight, User, Leaf, Check } from 'lucide-react';
 import { Layout } from '@/components/Layout';
@@ -7,20 +7,15 @@ import { Input } from '@/components/ui/input';
 import { useAuth } from '@/context/AuthContext';
 import { useTransactions } from '@/context/TransactionContext';
 import { useToast } from '@/hooks/use-toast';
+import { getUsers, sendTransaction } from '@/services/api';
+import { User as UserType } from '@/types';
 
-// Mock contacts
-const mockContacts = [
-  { id: '3', name: 'Mike Chen', collegeId: 'STU2024003', avatar: null },
-  { id: '4', name: 'Emma Davis', collegeId: 'STU2024004', avatar: null },
-  { id: '5', name: 'John Smith', collegeId: 'STU2024005', avatar: null },
-  { id: '6', name: 'Lisa Wang', collegeId: 'STU2024006', avatar: null },
-  { id: '7', name: 'David Brown', collegeId: 'STU2024007', avatar: null },
-];
 
 export default function SendCredits() {
   const [step, setStep] = useState<'select' | 'amount' | 'confirm' | 'success'>('select');
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedContact, setSelectedContact] = useState<typeof mockContacts[0] | null>(null);
+  const [users, setUsers] = useState<UserType[]>([]);
+  const [selectedContact, setSelectedContact] = useState<UserType | null>(null);
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -29,13 +24,34 @@ export default function SendCredits() {
   const { addTransaction } = useTransactions();
   const { toast } = useToast();
 
-  const filteredContacts = mockContacts.filter(
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const fetchedUsers = await getUsers();
+        // Filter out the current user from the list
+        const otherUsers = fetchedUsers.filter(u => u.uid !== user?.uid);
+        setUsers(otherUsers);
+      } catch (error) {
+        toast({
+          title: 'Error fetching users',
+          description: 'Could not load user list.',
+          variant: 'destructive',
+        });
+      }
+    };
+
+    if (user) {
+      fetchUsers();
+    }
+  }, [user, toast]);
+
+  const filteredContacts = users.filter(
     (contact) =>
       contact.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      contact.collegeId.toLowerCase().includes(searchQuery.toLowerCase())
+      contact.college_id.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleSelectContact = (contact: typeof mockContacts[0]) => {
+  const handleSelectContact = (contact: UserType) => {
     setSelectedContact(contact);
     setStep('amount');
   };
@@ -65,24 +81,35 @@ export default function SendCredits() {
     if (!user || !selectedContact) return;
     
     setIsLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    const numAmount = parseFloat(amount);
-    updateBalance(-numAmount);
     
-    addTransaction({
-      fromUserId: user.id,
-      fromUserName: user.name,
-      toUserId: selectedContact.id,
-      toUserName: selectedContact.name,
-      amount: numAmount,
-      type: 'send',
-      description: description || 'Transfer',
-      status: 'completed',
-    });
+    try {
+      const numAmount = parseFloat(amount);
+      await sendTransaction(selectedContact.college_id, numAmount);
+      
+      updateBalance(-numAmount);
+      
+      addTransaction({
+        fromUserId: user.uid,
+        fromUserName: user.name,
+        toUserId: selectedContact.uid,
+        toUserName: selectedContact.name,
+        amount: numAmount,
+        type: 'send',
+        description: description || 'Transfer',
+        status: 'completed',
+      });
+      
+      setStep('success');
 
-    setIsLoading(false);
-    setStep('success');
+    } catch (error) {
+      toast({
+        title: 'Transaction Failed',
+        description: error.message || 'An unexpected error occurred.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleReset = () => {
@@ -131,10 +158,10 @@ export default function SendCredits() {
             </div>
 
             <div className="space-y-2">
-              <p className="text-sm text-muted-foreground mb-3">Recent Contacts</p>
+              <p className="text-sm text-muted-foreground mb-3">All Users</p>
               {filteredContacts.map((contact, index) => (
                 <motion.button
-                  key={contact.id}
+                  key={contact.uid}
                   onClick={() => handleSelectContact(contact)}
                   className="w-full flex items-center gap-4 p-4 rounded-xl bg-card/60 backdrop-blur-sm border border-border hover:border-primary/30 hover:bg-card/80 transition-all duration-300"
                   initial={{ opacity: 0, y: 10 }}
@@ -146,7 +173,7 @@ export default function SendCredits() {
                   </div>
                   <div className="flex-1 text-left">
                     <p className="font-medium text-foreground">{contact.name}</p>
-                    <p className="text-sm text-muted-foreground">{contact.collegeId}</p>
+                    <p className="text-sm text-muted-foreground">{contact.college_id}</p>
                   </div>
                   <ArrowRight className="w-5 h-5 text-muted-foreground" />
                 </motion.button>
@@ -169,7 +196,7 @@ export default function SendCredits() {
                 </div>
                 <div>
                   <p className="font-medium text-foreground">{selectedContact.name}</p>
-                  <p className="text-sm text-muted-foreground">{selectedContact.collegeId}</p>
+                  <p className="text-sm text-muted-foreground">{selectedContact.college_id}</p>
                 </div>
               </div>
 

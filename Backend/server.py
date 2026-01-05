@@ -1,11 +1,13 @@
 from flask import Flask, request, g, jsonify
-from firebase.firebase_code import create_user_with_profile, login_user, verify_token, get_user_profile, db
+from firebase.firebase_code import create_user_with_profile, login_user, verify_token, get_user_profile, db, get_all_users
 from firebase_admin import firestore
 from wallet import generate_ECDSA_keys
 from functools import wraps
 import datetime
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}})
 
 def login_required(f):
     @wraps(f)
@@ -99,6 +101,14 @@ def login():
 def profile():
     # g.user is now the full user profile from Firestore
     return jsonify(g.user)
+
+@app.route("/users")
+@login_required
+def users():
+    users = get_all_users()
+    if users is None:
+        return jsonify({"message": "Failed to retrieve users"}), 500
+    return jsonify(users)
 
 @app.route("/transactions/send", methods=["POST"])
 @login_required

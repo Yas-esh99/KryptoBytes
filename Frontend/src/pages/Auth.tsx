@@ -232,6 +232,14 @@ export default function Auth() {
                   className="pl-12 pr-12"
                   required
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
                 <Button
                 type="submit"
                 className="w-full"
@@ -247,7 +255,7 @@ export default function Auth() {
                   </>
                 )}
               </Button>
-              </div>
+              
 
               {isLogin && (
                 <div className="text-right">
@@ -260,9 +268,7 @@ export default function Auth() {
                 </div>
               )}
 
-              <button type="submit" style={{ background: "red" }}>
-  TEST SUBMIT
-</button>
+      
 
             </form>
 

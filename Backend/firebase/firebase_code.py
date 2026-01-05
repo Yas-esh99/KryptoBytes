@@ -95,3 +95,13 @@ def get_user_profile(uid):
     except Exception as e:
         print(f"Error getting user profile: {e}")
         return None
+
+def get_all_users():
+    try:
+        users_ref = db.collection('users')
+        users_docs = users_ref.stream()
+        users_list = [user.to_dict() for user in users_docs]
+        return users_list
+    except Exception as e:
+        print(f"Error getting all users: {e}")
+        return None
