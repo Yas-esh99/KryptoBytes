@@ -8,7 +8,7 @@ import { TransactionItem } from '@/components/TransactionItem';
 import { useAuth } from '@/context/AuthContext';
 import { useTransactions } from '@/context/TransactionContext';
 
-type FilterType = 'all' | 'sent' | 'received' | 'credits' | 'rewards';
+type FilterType = 'all' | 'sent' | 'received' | 'rewards';
 
 export default function TransactionHistory() {
   const { user } = useAuth();
@@ -33,7 +33,6 @@ export default function TransactionHistory() {
     if (filter === 'all') return matchesSearch;
     if (filter === 'sent') return matchesSearch && t.fromUserId === user.id && t.type === 'send';
     if (filter === 'received') return matchesSearch && t.toUserId === user.id && t.type !== 'send';
-    if (filter === 'credits') return matchesSearch && t.type === 'credit';
     if (filter === 'rewards') return matchesSearch && t.type === 'reward';
 
     return matchesSearch;
@@ -43,7 +42,6 @@ export default function TransactionHistory() {
     { label: 'All', value: 'all' },
     { label: 'Sent', value: 'sent' },
     { label: 'Received', value: 'received' },
-    { label: 'Credits', value: 'credits' },
     { label: 'Rewards', value: 'rewards' },
   ];
 

@@ -4,6 +4,7 @@ import { apiLogin, apiSignup, getProfile } from '@/services/api';
 
 interface AuthContextType {
   user: User | null;
+  setUser: React.Dispatch<React.SetStateAction<User | null>>;
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password:string) => Promise<boolean>;
@@ -102,6 +103,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     <AuthContext.Provider
       value={{
         user,
+        setUser,
         isAuthenticated: !!user,
         isLoading,
         login,

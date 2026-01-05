@@ -14,7 +14,7 @@ const mockContacts = [
   { id: '5', name: 'John Smith', collegeId: 'STU2024005', avatar: null },
 ];
 
-export default function RequestCredits() {
+export default function RequestLeafcoin() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
@@ -105,7 +105,7 @@ export default function RequestCredits() {
             Request LeafCoins
           </h1>
           <p className="text-muted-foreground mt-1">
-            Request credits from fellow students
+            Request Leafcoin from fellow students
           </p>
         </motion.div>
 

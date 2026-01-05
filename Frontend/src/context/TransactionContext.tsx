@@ -8,7 +8,7 @@ interface TransactionContextType {
   isFetching: boolean;
   isSending: boolean;
   fetchTransactions: (page?: number, limit?: number) => Promise<void>;
-  sendCredits: (recipientId: string, amount: number) => Promise<boolean>;
+  sendLeafcoin: (recipientId: string, amount: number) => Promise<boolean>;
 }
 
 const TransactionContext = createContext<TransactionContextType | undefined>(undefined);
@@ -42,7 +42,7 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
     fetchTransactions();
   }, [fetchTransactions]);
 
-  const sendCredits = async (recipientId: string, amount: number): Promise<boolean> => {
+  const sendLeafcoin = async (recipientId: string, amount: number): Promise<boolean> => {
     setIsSending(true);
     try {
       await apiSendTransaction(recipientId, amount);
@@ -52,7 +52,7 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
       setIsSending(false);
       return true;
     } catch (error) {
-      console.error("Failed to send credits:", error);
+      console.error("Failed to send Leafcoin:", error);
       setIsSending(false);
       // Potentially re-throw or handle the error to show a toast message in the UI
       throw error;
@@ -66,7 +66,7 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
         isFetching,
         isSending,
         fetchTransactions,
-        sendCredits,
+        sendLeafcoin,
       }}
     >
       {children}

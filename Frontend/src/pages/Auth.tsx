@@ -60,7 +60,7 @@ export default function Auth() {
         if (success) {
           toast({
             title: 'Account created!',
-            description: 'Welcome to CampusCred. You received 500 LeafCoins!',
+            description: 'Welcome to CampusCoin. You received 50 Leafcoin!',
           });
           navigate('/dashboard');
         }

@@ -1,25 +1,36 @@
 import { motion } from 'framer-motion';
 import { LucideIcon } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 interface QuickActionButtonProps {
   icon: LucideIcon;
   label: string;
-  to: string;
+  to?: string;
+  onClick?: () => void;
   color?: string;
   delay?: number;
 }
 
-export function QuickActionButton({ icon: Icon, label, to, delay = 0 }: QuickActionButtonProps) {
+export function QuickActionButton({ icon: Icon, label, to, onClick, delay = 0 }: QuickActionButtonProps) {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    if (onClick) {
+      onClick();
+    } else if (to) {
+      navigate(to);
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay }}
     >
-      <Link
-        to={to}
-        className="flex flex-col items-center gap-2 group"
+      <button
+        onClick={handleClick}
+        className="flex flex-col items-center gap-2 group w-full"
       >
         <div className="relative">
           <div className="absolute inset-0 bg-primary/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -30,7 +41,7 @@ export function QuickActionButton({ icon: Icon, label, to, delay = 0 }: QuickAct
         <span className="text-xs md:text-sm text-muted-foreground group-hover:text-foreground transition-colors duration-300 text-center">
           {label}
         </span>
-      </Link>
+      </button>
     </motion.div>
   );
 }

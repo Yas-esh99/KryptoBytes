@@ -56,3 +56,10 @@ export const apiLogin = (email, password) => {
   export const getUsers = () => {
     return apiRequest('/users');
   };
+
+  export const mineCoin = () => {
+    return apiRequest('/mine', {
+      method: 'GET',
+    });
+  };
+

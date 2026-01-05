@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 import {
   Send,
   Download,
@@ -8,7 +7,10 @@ import {
   Gift,
   Zap,
   TrendingUp,
+  Coins,
 } from 'lucide-react';
+import { motion } from 'framer-motion';
+
 import { useAuth } from '@/context/AuthContext';
 import { useTransactions } from '@/context/TransactionContext';
 import { Layout } from '@/components/Layout';
@@ -17,19 +19,40 @@ import { QuickActionButton } from '@/components/QuickActionButton';
 import { TransactionItem } from '@/components/TransactionItem';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
+import { mineCoin } from '@/services/api';
+import { toast } from '@/hooks/use-toast';
 
 const quickActions = [
   { icon: Send, label: 'Send', to: '/send' },
   { icon: Download, label: 'Request', to: '/request' },
   { icon: QrCode, label: 'QR Code', to: '/qr' },
+  { icon: Coins, label: 'Mine', to: '#' },
   { icon: Calendar, label: 'Events', to: '/events' },
   { icon: Gift, label: 'Rewards', to: '/rewards' },
   { icon: History, label: 'History', to: '/history' },
 ];
 
 export default function Dashboard() {
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
   const { transactions } = useTransactions();
+
+  const handleMine = async () => {
+    try {
+      const response = await mineCoin();
+      setUser(prevUser => ({ ...prevUser, balance: response.new_balance }));
+      toast({
+        title: "Success!",
+        description: `You successfully mined 10 Leafcoin. Your new balance is ${response.new_balance}.`,
+      });
+    } catch (error) {
+      console.error("Mining failed:", error);
+      toast({
+        title: "Mining Failed",
+        description: "Could not mine new coins. Please try again later.",
+        variant: "destructive",
+      });
+    }
+  };
 
   if (!user) return null;
 
@@ -57,10 +80,11 @@ export default function Dashboard() {
           <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
             {quickActions.map((action, index) => (
               <QuickActionButton
-                key={action.to}
+                key={action.label}
                 icon={action.icon}
                 label={action.label}
                 to={action.to}
+                onClick={action.label === 'Mine' ? handleMine : undefined}
                 delay={0.1 * index}
               />
             ))}

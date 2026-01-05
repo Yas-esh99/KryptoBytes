@@ -11,7 +11,7 @@ import { getUsers, sendTransaction } from '@/services/api';
 import { User as UserType } from '@/types';
 
 
-export default function SendCredits() {
+export default function SendLeafcoin() {
   const [step, setStep] = useState<'select' | 'amount' | 'confirm' | 'success'>('select');
   const [searchQuery, setSearchQuery] = useState('');
   const [users, setUsers] = useState<UserType[]>([]);
@@ -20,8 +20,8 @@ export default function SendCredits() {
   const [description, setDescription] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const { user, updateBalance } = useAuth();
-  const { addTransaction } = useTransactions();
+  const { user, updateUser } = useAuth();
+  const { sendLeafcoin } = useTransactions();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -69,7 +69,7 @@ export default function SendCredits() {
     if (user && numAmount > user.balance) {
       toast({
         title: 'Insufficient balance',
-        description: 'You don\'t have enough LeafCoins',
+        description: 'You don\'t have enough Leafcoin',
         variant: 'destructive',
       });
       return;
@@ -84,20 +84,7 @@ export default function SendCredits() {
     
     try {
       const numAmount = parseFloat(amount);
-      await sendTransaction(selectedContact.college_id, numAmount);
-      
-      updateBalance(-numAmount);
-      
-      addTransaction({
-        fromUserId: user.uid,
-        fromUserName: user.name,
-        toUserId: selectedContact.uid,
-        toUserName: selectedContact.name,
-        amount: numAmount,
-        type: 'send',
-        description: description || 'Transfer',
-        status: 'completed',
-      });
+      await sendLeafcoin(selectedContact.college_id, numAmount);
       
       setStep('success');
 
@@ -133,10 +120,10 @@ export default function SendCredits() {
             <SendIcon className="w-8 h-8 text-primary" />
           </div>
           <h1 className="font-display text-2xl font-bold text-foreground">
-            Send LeafCoins
+            Send Leafcoin
           </h1>
           <p className="text-muted-foreground mt-1">
-            Transfer credits to fellow students
+            Transfer Leafcoin to fellow students
           </p>
         </motion.div>
 

@@ -30,7 +30,7 @@ const navItems = [
 ];
 
 const facultyItems = [
-  { icon: Shield, label: 'Credit Students', path: '/faculty/credit' },
+  { icon: Shield, label: 'Award Leafcoin', path: '/faculty/credit' },
 ];
 
 export function Navigation() {

@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { ArrowUpRight, ArrowDownLeft, Gift, Leaf, CreditCard } from 'lucide-react';
+import { ArrowUpRight, ArrowDownLeft, Gift, Leaf } from 'lucide-react';
 import { Transaction } from '@/types';
 import { formatDistanceToNow } from 'date-fns';
 
@@ -11,17 +11,12 @@ interface TransactionItemProps {
 
 export function TransactionItem({ transaction, currentUserId, index = 0 }: TransactionItemProps) {
   const isReceiving = transaction.toUserId === currentUserId;
-  const isCredit = transaction.type === 'credit' || transaction.type === 'reward';
-  const isPositive = isReceiving || isCredit;
+  const isPositive = isReceiving;
 
   const getIcon = () => {
     switch (transaction.type) {
-      case 'credit':
-        return Leaf;
       case 'reward':
         return Gift;
-      case 'debit':
-        return CreditCard;
       default:
         return isReceiving ? ArrowDownLeft : ArrowUpRight;
     }

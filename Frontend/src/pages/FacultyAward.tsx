@@ -43,8 +43,8 @@ const creditReasons = [
   'Other',
 ];
 
-export default function FacultyCredit() {
-  const { user, updateBalance } = useAuth();
+export default function FacultyAward() {
+  const { user, updateUser } = useAuth();
   const { addTransaction } = useTransactions();
   const { toast } = useToast();
 
@@ -113,9 +113,9 @@ export default function FacultyCredit() {
         toUserId: student.id,
         toUserName: student.name,
         amount: perStudentAmount,
-        type: 'credit',
+        type: 'award',
         category: finalReason,
-        description: `Faculty credit: ${finalReason}`,
+        description: `Faculty award: ${finalReason}`,
         status: 'completed',
       });
     });
@@ -148,7 +148,7 @@ export default function FacultyCredit() {
         <div className="flex items-center gap-3 mb-2">
           <Shield className="w-8 h-8 text-primary" />
           <h1 className="font-display text-2xl font-bold text-foreground">
-            Credit Students
+            Award Leafcoin to Students
           </h1>
         </div>
         <p className="text-muted-foreground">
@@ -355,9 +355,9 @@ export default function FacultyCredit() {
 
               {/* Reason Selection */}
               <div className="mb-4">
-                <p className="text-sm text-muted-foreground mb-2">Reason for credit</p>
+                <p className="text-sm text-muted-foreground mb-2">Reason for award</p>
                 <div className="flex flex-wrap gap-2">
-                  {creditReasons.map((r) => (
+                  {awardReasons.map((r) => (
                     <Button
                       key={r}
                       variant={reason === r ? 'default' : 'outline'}
@@ -402,7 +402,7 @@ export default function FacultyCredit() {
           >
             <div className="glass-card p-6 mb-6">
               <h3 className="font-display text-lg font-semibold text-center mb-6">
-                Confirm Credit Distribution
+                Confirm Award Distribution
               </h3>
 
               <div className="space-y-4">
@@ -470,10 +470,10 @@ export default function FacultyCredit() {
               <Check className="w-10 h-10 text-success" />
             </div>
             <h2 className="font-display text-2xl font-bold text-foreground mb-2">
-              Credits Distributed!
+              Awards Distributed!
             </h2>
             <p className="text-muted-foreground mb-2">
-              <span className="text-primary font-bold">{getPerStudentAmount()} LC</span> credited to each of
+              <span className="text-primary font-bold">{getPerStudentAmount()} LC</span> awarded to each of
             </p>
             <p className="text-muted-foreground mb-8">
               {selectedStudents.length} students
@@ -481,7 +481,7 @@ export default function FacultyCredit() {
 
             <div className="flex gap-3">
               <Button variant="outline" className="flex-1" onClick={handleReset}>
-                Credit More
+                Award More
               </Button>
               <Button className="flex-1" asChild>
                 <a href="/dashboard">Done</a>
