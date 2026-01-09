@@ -75,7 +75,7 @@ export default function Rewards() {
   const currentTier = tiers.find(t => user.balance >= t.min && user.balance < t.max) || tiers[0];
   const nextTier = tiers[tiers.indexOf(currentTier) + 1];
   const progressToNext = nextTier
-    ? ((user.balance - currentTier.min) / (nextTier.min - currentTier.min)) * 100
+    ? ((user.balance - currentTier?.min) / (nextTier.min - currentTier?.min)) * 100
     : 100;
 
   const handleClaim = (reward: Reward) => {

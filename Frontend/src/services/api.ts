@@ -1,4 +1,4 @@
-const BASE_URL = 'http://127.0.0.1:5000'; // Assuming default Flask port
+const BASE_URL = 'https://kryptobytes-7.onrender.com'; // Assuming default Flask port
 
 const apiRequest = async (path: string, options: RequestInit = {}) => {
   const token = localStorage.getItem('idToken');

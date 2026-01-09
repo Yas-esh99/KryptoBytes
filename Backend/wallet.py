@@ -74,7 +74,7 @@ def send_transaction(addr_from, private_key, addr_to, amount):
 
     if len(private_key) == 64:
         signature, message = sign_ECDSA_msg(private_key)
-        url = 'http://127.0.0.1:5000/txion'
+        url = 'https://kryptobytes-7.onrender.com/txion'
         payload = {"from": addr_from,
                    "to": addr_to,
                    "amount": amount,
@@ -93,7 +93,7 @@ def check_transactions():
     wallets balance. If the blockchain is to long, it may take some time to load.
     """
     try:
-        res = requests.get('http://localhost:5000/blocks')
+        res = requests.get('https://kryptobytes-7.onrender.com/blocks')
         parsed = json.loads(res.text)
         print(json.dumps(parsed, indent=4, sort_keys=True))
     except requests.ConnectionError:

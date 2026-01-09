@@ -23,17 +23,29 @@ export default function TransactionHistory() {
   );
 
   const filteredTransactions = userTransactions.filter((t) => {
-    // Search filter
-    const matchesSearch =
-      t.fromUserName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      t.toUserName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      t.description?.toLowerCase().includes(searchQuery.toLowerCase());
+    // 1. Safe Search Filter
+    // Using ?? "" ensures that if the field is undefined, we use an empty string instead
+    const fromName = t?.fromUserName ?? "";
+    const toName = t?.toUserName ?? "";
+    const description = t?.description ?? "";
+    const query = searchQuery.toLowerCase();
 
-    // Type filter
+    const matchesSearch =
+      fromName.toLowerCase().includes(query) ||
+      toName.toLowerCase().includes(query) ||
+      description.toLowerCase().includes(query);
+
+    // 2. Type filter
     if (filter === 'all') return matchesSearch;
-    if (filter === 'sent') return matchesSearch && t.fromUserId === user.id && t.type === 'send';
-    if (filter === 'received') return matchesSearch && t.toUserId === user.id && t.type !== 'send';
-    if (filter === 'rewards') return matchesSearch && t.type === 'reward';
+    
+    // Ensure t.type and t.fromUserId exist before comparing
+    const isSent = t?.fromUserId === user.id && t?.type === 'send';
+    const isReceived = t?.toUserId === user.id && t?.type !== 'send';
+    const isReward = t?.type === 'reward';
+
+    if (filter === 'sent') return matchesSearch && isSent;
+    if (filter === 'received') return matchesSearch && isReceived;
+    if (filter === 'rewards') return matchesSearch && isReward;
 
     return matchesSearch;
   });

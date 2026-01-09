@@ -77,13 +77,13 @@ export function Navigation() {
             <nav className="p-4 space-y-2">
               {allNavItems.map((item) => (
                 <button
-                  key={item.path}
+                  key={item?.path}
                   onClick={() => {
-                    navigate(item.path);
+                    navigate(item?.path);
                     setIsOpen(false);
                   }}
                   className={`w-full flex items-center gap-3 p-4 rounded-xl transition-all duration-300 ${
-                    location.pathname === item.path
+                    location.pathname === item?.path
                       ? 'bg-primary/20 text-primary border border-primary/30'
                       : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                   }`}
@@ -115,10 +115,10 @@ export function Navigation() {
         <nav className="flex-1 p-4 space-y-1">
           {allNavItems.map((item) => (
             <button
-              key={item.path}
-              onClick={() => navigate(item.path)}
+              key={item?.path}
+              onClick={() => navigate(item?.path)}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${
-                location.pathname === item.path
+                location.pathname === item?.path
                   ? 'bg-primary/20 text-primary border border-primary/30'
                   : 'text-muted-foreground hover:bg-muted hover:text-foreground'
               }`}
@@ -166,10 +166,10 @@ export function Navigation() {
         <div className="flex justify-around items-center py-2">
           {[navItems[0], navItems[1], navItems[3], navItems[2], navItems[6]].map((item) => (
             <button
-              key={item.path}
-              onClick={() => navigate(item.path)}
+              key={item?.path}
+              onClick={() => navigate(item?.path)}
               className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all duration-300 ${
-                location.pathname === item.path
+                location.pathname === item?.path
                   ? 'text-primary'
                   : 'text-muted-foreground'
               }`}
