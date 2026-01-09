@@ -7,8 +7,7 @@ import datetime
 from flask_cors import CORS
 
 app = Flask(__name__)
-# This allows all routes (including /create-user and /login) to be accessed by your Firebase site
-
+CORS(app, resources={r"/*": {"origins": "https://campuscred-b4e19.web.app"}})
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
