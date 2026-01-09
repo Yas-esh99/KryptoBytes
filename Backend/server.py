@@ -7,7 +7,7 @@ import datetime
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app, resources={r"/api/*": {"origins": "https://campuscred-b4e19.web.app"}})
+CORS(app, resources={r"/*": {"origins": "https://campuscred-b4e19.web.app"}})
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
