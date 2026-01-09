@@ -16,7 +16,7 @@ if not firebase_admin._apps:
     else:
         json_path = os.path.join(
             base_path,
-            "krytpbytes-firebase-adminsdk-fbsvc-4b59bc592f.json"
+            "/opt/render/project/src/Backend/firebase/krytpbytes-firebase-adminsdk-fbsvc-4b59bc592f.json"
         )
         cred = credentials.Certificate(json_path)
         firebase_admin.initialize_app(cred)
