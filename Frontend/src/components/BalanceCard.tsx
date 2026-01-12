@@ -1,13 +1,16 @@
 import { motion } from 'framer-motion';
-import { Leaf, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { Leaf, TrendingUp, TrendingDown, Minus, WalletMinimal } from 'lucide-react';
+import { Badge } from '@/components/ui/badge'; // Assuming you have a Badge component
 
 interface BalanceCardProps {
   balance: number;
+  stakedBalance: number;
+  isValidator: boolean;
   change?: number;
   userName?: string;
 }
 
-export function BalanceCard({ balance, change = 0, userName }: BalanceCardProps) {
+export function BalanceCard({ balance, stakedBalance, isValidator, change = 0, userName }: BalanceCardProps) {
   const formatBalance = (amount: number) => {
     return new Intl.NumberFormat('en-US').format(amount);
   };
@@ -40,8 +43,9 @@ export function BalanceCard({ balance, change = 0, userName }: BalanceCardProps)
           </p>
         )}
         
-        <div className="flex items-center gap-2 mb-2">
-          <span className="text-muted-foreground text-sm">Available Balance</span>
+        <div className="flex items-center justify-between mb-2">
+            <span className="text-muted-foreground text-sm">Available Balance</span>
+            {isValidator && <Badge variant="secondary">Validator</Badge>}
         </div>
         
         <div className="flex items-baseline gap-3 mb-4">
@@ -56,7 +60,20 @@ export function BalanceCard({ balance, change = 0, userName }: BalanceCardProps)
           <span className="text-xl text-muted-foreground font-medium">LC</span>
         </div>
         
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 border-t border-border pt-4 mt-4">
+          <div className="bg-purple-500/20 p-1.5 rounded-lg">
+            <WalletMinimal className="w-5 h-5 text-purple-400" />
+          </div>
+          <div>
+            <p className="text-sm text-muted-foreground">Staked Balance</p>
+            <p className="font-display text-xl font-bold text-foreground">
+              {formatBalance(stakedBalance)} LC
+            </p>
+          </div>
+        </div>
+
+        {/* Removed 'this week' change for now as it's not relevant for staked balance */}
+        {/* <div className="flex items-center gap-2">
           <div className={`flex items-center gap-1 ${trendColor}`}>
             <TrendIcon className="w-4 h-4" />
             <span className="text-sm font-medium">
@@ -64,7 +81,7 @@ export function BalanceCard({ balance, change = 0, userName }: BalanceCardProps)
             </span>
           </div>
           <span className="text-xs text-muted-foreground">this week</span>
-        </div>
+        </div> */}
       </div>
     </motion.div>
   );

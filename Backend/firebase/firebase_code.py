@@ -16,14 +16,14 @@ if not firebase_admin._apps:
     else:
         json_path = os.path.join(
             base_path,
-            "/opt/render/project/src/Backend/firebase/krytpbytes-firebase-adminsdk-fbsvc-4b59bc592f.json"
+            "krytpbytes-firebase-adminsdk-fbsvc-b97802092a.json"
         )
         cred = credentials.Certificate(json_path)
         firebase_admin.initialize_app(cred)
 
 db = firestore.client()
 
-FIREBASE_WEB_API_KEY = os.environ["FIREBASE_WEB_API_KEY"]
+FIREBASE_WEB_API_KEY = "AIzaSyAZmYb545gnsmRE25spJDSt1xc4WthWTfg"
 # ------------------------------
 
 
@@ -46,6 +46,9 @@ def create_user_with_profile(user_data):
     # Remove password before storing
     user_data.pop("password", None)
     user_data["uid"] = uid
+    user_data["staked_balance"] = 0
+    user_data["is_validator"] = False
+    user_data["nonce"] = 0
 
     # Store profile in Firestore
     db.collection("users").document(uid).set(user_data)
@@ -93,3 +96,36 @@ def get_all_users():
         return [{**doc.to_dict(), "uid": doc.id} for doc in users]
     except Exception:
         return None
+
+
+def get_user_by_public_key(public_key):
+    try:
+        users_ref = db.collection("users")
+        query = users_ref.where("public_key", "==", public_key).limit(1)
+        results = query.stream()
+        for doc in results:
+            return {**doc.to_dict(), "uid": doc.id}
+        return None
+    except Exception as e:
+        print(f"Error getting user by public key: {e}")
+        return None
+
+
+def update_user_profile(uid, new_data):
+    try:
+        db.collection("users").document(uid).update(new_data)
+        return True
+    except Exception as e:
+        print(f"Error updating user profile: {e}")
+        return False
+
+
+def get_validators():
+    try:
+        users_ref = db.collection("users")
+        query = users_ref.where("is_validator", "==", True)
+        results = query.stream()
+        return [{**doc.to_dict(), "uid": doc.id} for doc in results]
+    except Exception as e:
+        print(f"Error getting validators: {e}")
+        return []

@@ -14,6 +14,7 @@ import {
   Menu,
   X,
   Shield,
+  Coins, // Added Coins import
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { Logo } from './Logo';
@@ -27,6 +28,7 @@ const navItems = [
   { icon: Calendar, label: 'Events', path: '/events' },
   { icon: Gift, label: 'Rewards', path: '/rewards' },
   { icon: User, label: 'Profile', path: '/profile' },
+  { icon: Coins, label: 'Stake', path: '/stake' }, // New Stake item
 ];
 
 const facultyItems = [
@@ -47,6 +49,10 @@ export function Navigation() {
   const allNavItems = user?.role === 'faculty' 
     ? [...navItems, ...facultyItems]
     : navItems;
+    
+  if (user?.is_validator) {
+    allNavItems.push({ icon: Shield, label: 'Validate', path: '/validate' }); // Conditional Validate item
+  }
 
   return (
     <>

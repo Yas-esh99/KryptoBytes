@@ -1,18 +1,14 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from 'react';
+
 import { User } from '@/types';
 import { apiLogin, apiSignup, getProfile } from '@/services/api';
-
-interface AuthContextType {
-  user: User | null;
-  setUser: React.Dispatch<React.SetStateAction<User | null>>;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  login: (email: string, password:string) => Promise<boolean>;
-  signup: (data: SignupData) => Promise<boolean>;
-  logout: () => void;
-  updateUser: (updates: Partial<User>) => void;
-  refreshUser: () => Promise<void>;
-}
+import { generateKeys } from '@/lib/wallet';
 
 interface SignupData {
   name: string;
@@ -21,6 +17,17 @@ interface SignupData {
   password: string;
   role: 'student' | 'faculty';
   department?: string;
+}
+
+interface AuthContextType {
+  user: User | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  login: (email: string, password: string) => Promise<boolean>;
+  signup: (data: SignupData) => Promise<boolean>;
+  logout: () => void;
+  updateUser: (updates: Partial<User>) => void;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -35,8 +42,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         const profile = await getProfile();
         setUser(profile);
-      } catch (error) {
-        console.error("Failed to fetch profile:", error);
+      } catch (err) {
+        console.error('Profile fetch failed', err);
         localStorage.removeItem('idToken');
       }
     }
@@ -53,24 +60,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const { idToken } = await apiLogin(email, password);
       localStorage.setItem('idToken', idToken);
       await loadUserFromToken();
-      setIsLoading(false);
       return true;
-    } catch (error) {
-      console.error("Login failed:", error);
-      setIsLoading(false);
+    } catch (err) {
+      console.error('Login failed', err);
       return false;
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const signup = async (data: SignupData): Promise<boolean> => {
     setIsLoading(true);
     try {
-      await apiSignup(data);
-      // After successful signup, log the user in
+      const { publicKey, privateKey } = generateKeys();
+      await apiSignup({ ...data, publicKey });
+      localStorage.setItem('privateKey', privateKey);
       return await login(data.email, data.password);
-    } catch (error) {
-      console.error("Signup failed:", error);
-      setIsLoading(false);
+    } catch (err) {
+      console.error('Signup failed', err);
       return false;
     } finally {
       setIsLoading(false);
@@ -83,27 +90,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const updateUser = (updates: Partial<User>) => {
-    // TODO: Implement backend update for user profile
-    if (user) {
-      const updatedUser = { ...user, ...updates };
-      setUser(updatedUser);
-    }
+    if (user) setUser({ ...user, ...updates });
   };
 
   const refreshUser = async () => {
     setIsLoading(true);
-    try {
-      await loadUserFromToken();
-    } finally {
-      setIsLoading(false);
-    }
+    await loadUserFromToken();
+    setIsLoading(false);
   };
 
   return (
     <AuthContext.Provider
       value={{
         user,
-        setUser,
         isAuthenticated: !!user,
         isLoading,
         login,
@@ -120,7 +119,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export function useAuth() {
   const context = useContext(AuthContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;

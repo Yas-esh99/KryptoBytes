@@ -12,7 +12,6 @@ import {
 import { motion } from 'framer-motion';
 
 import { useAuth } from '@/context/AuthContext';
-import { useTransactions } from '@/context/TransactionContext';
 import { Layout } from '@/components/Layout';
 import { BalanceCard } from '@/components/BalanceCard';
 import { QuickActionButton } from '@/components/QuickActionButton';
@@ -26,37 +25,27 @@ const quickActions = [
   { icon: Send, label: 'Send', to: '/send' },
   { icon: Download, label: 'Request', to: '/request' },
   { icon: QrCode, label: 'QR Code', to: '/qr' },
-  { icon: Coins, label: 'Mine', to: '#' },
+  { icon: Coins, label: 'Stake', to: '/stake' },
   { icon: Calendar, label: 'Events', to: '/events' },
   { icon: Gift, label: 'Rewards', to: '/rewards' },
   { icon: History, label: 'History', to: '/history' },
 ];
 
 export default function Dashboard() {
-  const { user, setUser } = useAuth();
-  const { transactions } = useTransactions();
+  const { user, refreshUser } = useAuth();
+  
+  // if (!user) return null; // user will be loaded by AuthProvider
+  if (!user) return null; // user will be loaded by AuthProvider
 
-  const handleMine = async () => {
-    try {
-      const response = await mineCoin();
-      setUser(prevUser => ({ ...prevUser, balance: response.new_balance }));
-      toast({
-        title: "Success!",
-        description: `You successfully mined 10 Leafcoin. Your new balance is ${response.new_balance}.`,
-      });
-    } catch (error) {
-      console.error("Mining failed:", error);
-      toast({
-        title: "Mining Failed",
-        description: "Could not mine new coins. Please try again later.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  if (!user) return null;
-
-  const recentTransactions = transactions.slice(0, 5);
+  const recentTransactions = user.recentTransactions ? user.recentTransactions.slice(0, 5) : [];
+  
+  const handleValidate = async () => {
+    // Implement validation logic here
+    toast({
+        title: "Validation Action",
+        description: "Navigating to validation page...",
+    });
+  }
 
   return (
     <Layout>
@@ -64,7 +53,9 @@ export default function Dashboard() {
         {/* Balance Card */}
         <BalanceCard
           balance={user.balance}
-          change={350}
+          stakedBalance={user.staked_balance}
+          isValidator={user.is_validator}
+          change={350} // Placeholder, ideally this would come from user data
           userName={user.name.split(' ')[0]}
         />
 
@@ -78,16 +69,30 @@ export default function Dashboard() {
             Quick Actions
           </h2>
           <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
-            {quickActions.map((action, index) => (
-              <QuickActionButton
-                key={action.label}
-                icon={action.icon}
-                label={action.label}
-                to={action.to}
-                onClick={action.label === 'Mine' ? handleMine : undefined}
-                delay={0.1 * index}
-              />
-            ))}
+            {quickActions.map((action, index) => {
+                if (action.label === 'Validate' && !user.is_validator) {
+                    return null;
+                }
+                return (
+                    <QuickActionButton
+                        key={action.label}
+                        icon={action.icon}
+                        label={action.label}
+                        to={action.to}
+                        onClick={action.label === 'Validate' ? handleValidate : undefined}
+                        delay={0.1 * index}
+                    />
+                );
+            })}
+            {user.is_validator && (
+                <QuickActionButton
+                    key="Validate"
+                    icon={TrendingUp} // Or another appropriate icon for validation
+                    label="Validate"
+                    to="/validate"
+                    delay={0.1 * quickActions.length}
+                />
+            )}
           </div>
         </motion.section>
 
@@ -148,7 +153,7 @@ export default function Dashboard() {
                 <TransactionItem
                   key={transaction.id}
                   transaction={transaction}
-                  currentUserId={user.id}
+                  currentUserId={user.uid} // Changed from user.id to user.uid
                   index={index}
                 />
               ))

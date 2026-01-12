@@ -1,4 +1,5 @@
-const BASE_URL = 'https://kryptobytes-7.onrender.com'; // Assuming default Flask port
+const BASE_URL = 'http://127.0.0.1:5000'
+//const BASE_URL = 'https://kryptobytes-7.onrender.com'; // Assuming default Flask port
 
 const apiRequest = async (path: string, options: RequestInit = {}) => {
   const token = localStorage.getItem('idToken');
@@ -32,6 +33,8 @@ export const apiLogin = (email, password) => {
   };
   
   export const apiSignup = (userData) => {
+    // Note: The backend now expects a 'publicKey' field for creating a user.
+    // This should be generated on the client-side and included in the userData.
     return apiRequest('/create-user', {
       method: 'POST',
       body: JSON.stringify(userData),
@@ -42,24 +45,41 @@ export const apiLogin = (email, password) => {
     return apiRequest('/profile');
   };
   
-  export const sendTransaction = (recipientId: string, amount: number) => {
+  export const sendTransaction = (message: object, signature: string) => {
     return apiRequest('/transactions/send', {
       method: 'POST',
-      body: JSON.stringify({ recipientId, amount }),
+      body: JSON.stringify({ message, signature }),
     });
   };
   
-  export const getTransactions = (page = 1, limit = 10) => {
-    return apiRequest(`/transactions?page=${page}&limit=${limit}`);
+  export const getTransactions = (page = 1, limit = 10, status?: 'pending' | 'validated' | 'failed') => {
+    let path = `/transactions?page=${page}&limit=${limit}`;
+    if (status) {
+      path += `&status=${status}`;
+    }
+    return apiRequest(path);
   };
 
   export const getUsers = () => {
     return apiRequest('/users');
   };
 
-  export const mineCoin = () => {
-    return apiRequest('/mine', {
-      method: 'GET',
+  export const stake = (amount: number) => {
+    return apiRequest('/stake', {
+      method: 'POST',
+      body: JSON.stringify({ amount }),
     });
   };
 
+  export const unstake = (amount: number) => {
+    return apiRequest('/unstake', {
+      method: 'POST',
+      body: JSON.stringify({ amount }),
+    });
+  };
+
+  export const validateTransaction = () => {
+    return apiRequest('/transactions/validate', {
+      method: 'POST',
+    });
+  };

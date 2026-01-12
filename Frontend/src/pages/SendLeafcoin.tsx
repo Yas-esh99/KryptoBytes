@@ -5,10 +5,10 @@ import { Layout } from '@/components/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/context/AuthContext';
-import { useTransactions } from '@/context/TransactionContext';
 import { useToast } from '@/hooks/use-toast';
 import { getUsers, sendTransaction } from '@/services/api';
 import { User as UserType } from '@/types';
+import { signMessage } from '@/lib/wallet';
 
 
 export default function SendLeafcoin() {
@@ -20,8 +20,7 @@ export default function SendLeafcoin() {
   const [description, setDescription] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const { user, updateUser } = useAuth();
-  const { sendLeafcoin } = useTransactions();
+  const { user, refreshUser } = useAuth();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -69,7 +68,7 @@ export default function SendLeafcoin() {
     if (user && numAmount > user.balance) {
       toast({
         title: 'Insufficient balance',
-        description: 'You don\'t have enough Leafcoin',
+        description: 'You do not have enough Leafcoin',
         variant: 'destructive',
       });
       return;
@@ -83,10 +82,25 @@ export default function SendLeafcoin() {
     setIsLoading(true);
     
     try {
-      const numAmount = parseFloat(amount);
-      await sendLeafcoin(selectedContact.college_id, numAmount);
-      
-      setStep('success');
+        const privateKey = localStorage.getItem('privateKey');
+        if (!privateKey) {
+            throw new Error('Private key not found. Please log in again.');
+        }
+
+        const numAmount = parseFloat(amount);
+        const message = {
+            recipientId: selectedContact.college_id,
+            amount: numAmount,
+            nonce: user.nonce,
+        };
+
+        const signature = signMessage(privateKey, message);
+
+        await sendTransaction(message, signature);
+        
+        await refreshUser(); // Refresh user to get updated nonce and balance
+
+        setStep('success');
 
     } catch (error) {
       toast({
@@ -302,7 +316,7 @@ export default function SendLeafcoin() {
               <Check className="w-10 h-10 text-success" />
             </div>
             <h2 className="font-display text-2xl font-bold text-foreground mb-2">
-              Transfer Successful!
+              Transaction Submitted for Validation!
             </h2>
             <p className="text-muted-foreground mb-2">
               You sent <span className="text-primary font-bold">{parseFloat(amount).toLocaleString()} LC</span>
